@@ -14,12 +14,41 @@ const StackBacheca = createNativeStackNavigator();
 export default function BachecaStack(){
     return(
         <StackBacheca.Navigator initialRouteName='BachecaTwok'>
-            <StackBacheca.Screen name='BachecaTwok' component={BachecaTwok}/>
-            <StackBacheca.Screen name='BachechaUtente' component={BachechaUtente}/>
-            <StackBacheca.Screen name='TwokMap' component={TwokMap} />
+            <StackBacheca.Screen name='BachecaTwok' component={BachecaTwok} options={{
+                title: 'Bacheca Twok',
+                headerStyle: {
+                    backgroundColor: '#F4DF4EFF'
+                },
+                headerTintColor: 'grey',
+                headerTitleStyle: {
+                    fontWeight: 'bold'
+                }
+            }}/>
+            <StackBacheca.Screen name='BachechaUtente' component={BachechaUtente} options={{
+                title: 'Bacheca Utente',
+                headerStyle: {
+                    backgroundColor: '#F4DF4EFF'
+                },
+                headerTintColor: 'grey',
+                headerTitleStyle: {
+                    fontWeight: 'bold'
+                }
+            }}/>
+            <StackBacheca.Screen name='TwokMap' component={TwokMap} options={{
+                title: 'Mappa',
+                headerStyle: {
+                    backgroundColor: '#F4DF4EFF'
+                },
+                headerTintColor: 'grey',
+                headerTitleStyle: {
+                    fontWeight: 'bold'
+                }
+            }}/>
         </StackBacheca.Navigator>
     )
 }
+
+//options={{headerShown: false}}
 
 const styles = StyleSheet.create({
     bar:{

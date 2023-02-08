@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, SafeAreaView, Button, TextInput, View, Image,TouchableOpacity } from 'react-native';
-
+import { StyleSheet, Text, SafeAreaView, Button, TextInput, View, Image,TouchableOpacity, Alert } from 'react-native';
+import NetInfo from '@react-native-community/netinfo';
 import {React, useEffect, useContext, useState} from 'react';
 import * as ImagePicker from 'expo-image-picker';
 
@@ -28,7 +28,20 @@ function ModificaProfilo({route, navigation}){
         }
     };
 
-    function handleModifiche(name, picture){
+    async function handleModifiche(name, picture){
+
+
+        const state = await NetInfo.fetch();
+        console.log(state.isConnected)
+        if(!state.isConnected){
+            Alert.alert(
+            'Problemi di rete',
+            'Verifica la connessione e riprova',
+            [{text: 'OK', onPress: () => {handleModifiche()}}],
+            {cancelable: false},
+            );
+        }
+
         if(name.length > 20){
             alert('Il nome deve essere più corto di 20 caratteri')
             return
@@ -44,44 +57,22 @@ function ModificaProfilo({route, navigation}){
             alert('Profilo modificato')
     }
 
-    if(picture == null){
-        return(
-        <SafeAreaView style={styles.container}>
-            <View>
-               <Text style={{fontSize:20}}>Immagine del profilo non settata</Text> 
-            </View>
-            <View>
-                <TouchableOpacity onPress={pickImage}>
-                    <Image
-                    source={require('../images/placeholder_No_Profile_Picture.jpeg')}
-                    style={{width: 200, height:200, resizeMode: 'contain'}}
-                />
-                </TouchableOpacity>
-            </View>
-            <View>
-                <Text style={{fontSize:30}}>{route.params.name}</Text>
-            </View>
-            <View>
-                <TextInput
-                    value={name}
-                    style={styles.input}
-                    onChangeText={(text) => {setName(text)}}
-                />
-            </View>
-            <View>
-                <Button title='Modifica' onPress={() => handleModifiche(name, picture)}></Button>
-            </View>
-        </SafeAreaView>
-        )
-    } else{
         return(
             <SafeAreaView style={styles.container}>
                 <View>
                     <TouchableOpacity onPress={pickImage}>
-                        <Image
-                            source={{uri:
-                            'data:image/png;base64,' + (picture)}} style={{width: 200, height:200, resizeMode: 'contain'}}
-                        />
+                        {picture == null ?
+                            <Image
+                                source={require('../images/placeholder_No_Profile_Picture.jpeg')}
+                                style={{width: 200, height:200, resizeMode: 'contain'}}
+                            />
+                        :
+                            <Image
+                                source={{uri:
+                                'data:image/png;base64,' + (picture)}} style={{width: 200, height:200, resizeMode: 'contain'}}
+                            />
+                        }
+                        
                     </TouchableOpacity>  
                 </View>
                 <View>
@@ -95,11 +86,10 @@ function ModificaProfilo({route, navigation}){
                     />
                 </View>
                 <View>
-                    <Button title='Modifica' onPress={() => handleModifiche(name, picture)}></Button>
+                    <Button title='Modifica' onPress={() => handleModifiche(name, picture)} color = 'black'></Button>
                 </View>
             </SafeAreaView>
             )
-    }
     
 
 }
@@ -108,7 +98,8 @@ function ModificaProfilo({route, navigation}){
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: 'center'
+        alignItems: 'center',
+        paddingTop: 30
     },
     input: {
         height: 40,

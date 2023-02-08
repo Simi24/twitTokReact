@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, Image, SafeAreaView, FlatList, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, Button, Image, SafeAreaView, FlatList, Dimensions, Alert, ActivityIndicator } from 'react-native';
 import {React, useState, useEffect, Component, useContext} from 'react';
-
+import NetInfo from '@react-native-community/netinfo';
 import SeguitiContext from '../context';
 
 import StorageManager from '../model/storeManager';
@@ -15,10 +15,10 @@ import HeaderBachecaUtente from './headerBachecaUtente';
 const SM = new StorageManager();
 const helper = new TwokLoaderHelper();
 
-//TODO: pulsante per vedere la posizione, come fatto in bacheca twok
 
 function BachechaUtente(props){
     let [list, setList] = useState(null)
+    const [isReady, setIsReady] = useState(false)
 
     const handleFollowContext = useContext(SeguitiContext)
 
@@ -27,19 +27,47 @@ function BachechaUtente(props){
     const sid = props.route.params.sid
 
 
-    useEffect(() => {handleRequest()}, []);
+    useEffect(() => {handleRequest().catch(error => console.error(error), setIsReady(false))}, []);
 
     async function handleRequest(){
-        setList(await helper.getUserTwoks(sid, uid))      
+      const state = await NetInfo.fetch();
+      console.log(state.isConnected)
+      if(!state.isConnected){
+        Alert.alert(
+          'Problemi di rete',
+          'Verifica la connessione e riprova',
+          [{text: 'OK', onPress: () => {handleRequest()}}],
+          {cancelable: false},
+        );
+      }
+        setList(await helper.getUserTwoks(sid, uid))
+        setIsReady(true);      
     }
 
     async function handleScroll() {
         await helper.addUserTwok(sid, uid,list)
         .then(result => 'Twok aggiunti')
+        .catch(error => console.log('problema di rete nel caricamento twok ', error));
+    }
+
+    const handleNavigationMap = (lat, lon) =>{
+      props.navigation.navigate('TwokMap', {
+        lat: lat,
+        lon: lon
+      })
     }
 
 
-    
+    if(!isReady){
+      return(
+        <SafeAreaView style={styles.container}>
+          <ActivityIndicator
+            size={'large'}
+          />
+        </SafeAreaView>
+      )
+    } else {
+
         return(
         <SafeAreaView style={styles.container}>
           <View style={{
@@ -54,8 +82,8 @@ function BachechaUtente(props){
             width: '100%'
           }}>
             <FlatList style={styles.listStyle} data={list}
-            renderItem={(twok)=>{return <TwokRowUtente data={twok} sid={sid}/>}}
-            keyExtractor={(twok)=>{twok.uid + twok.uid}} 
+            renderItem={(twok)=>{return <TwokRowUtente data={twok} sid={sid} handleNavigationMap={handleNavigationMap}/>}}
+            keyExtractor={(twok, index) => index.toString()} 
             snapToInterval={Dimensions.get('window').height}
             snapToAlignment="start"
             decelerationRate="fast"
@@ -69,7 +97,8 @@ function BachechaUtente(props){
           <StatusBar style="auto" />
 
         </SafeAreaView>     
-    )
+        )
+    }
     
 }
 
@@ -83,6 +112,6 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
     },
     listStyle: {
-      width: "100%"
+      width: "100%",
     }
   });

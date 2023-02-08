@@ -9,6 +9,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import UtentiSeguiti from '../components/utentiSeguiti';
 import BachechaUtente from '../components/bachecaUtente';
+import TwokMap from '../components/map';
 
 
 
@@ -19,8 +20,36 @@ export default function SeguitiStack(){
     
     return(
             <StackBacheca.Navigator initialRouteName='UtentiSeguiti'>
-                <StackBacheca.Screen name='UtentiSeguiti' component={UtentiSeguiti}/>
-                <StackBacheca.Screen name='BachechaUtente' component={BachechaUtente}/>
+                <StackBacheca.Screen name='UtentiSeguiti' component={UtentiSeguiti} options={{
+                title: 'Seguiti',
+                headerStyle: {
+                    backgroundColor: '#F4DF4EFF'
+                },
+                headerTintColor: 'grey',
+                headerTitleStyle: {
+                    fontWeight: 'bold'
+                }
+            }}/>
+                <StackBacheca.Screen name='BachechaUtente' component={BachechaUtente} options={{
+                title: 'Bacheca Utente',
+                headerStyle: {
+                    backgroundColor: '#F4DF4EFF'
+                },
+                headerTintColor: 'grey',
+                headerTitleStyle: {
+                    fontWeight: 'bold'
+                }
+            }}/>
+            <StackBacheca.Screen name='TwokMap' component={TwokMap} options={{
+                title: 'Mappa',
+                headerStyle: {
+                    backgroundColor: '#F4DF4EFF'
+                },
+                headerTintColor: 'grey',
+                headerTitleStyle: {
+                    fontWeight: 'bold'
+                }
+            }}/>
             </StackBacheca.Navigator>
     )
 }

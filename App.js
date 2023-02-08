@@ -1,5 +1,6 @@
 import {React, useState, useEffect, Component, createContext}from 'react';
-import { Text, SafeAreaView, StyleSheet, SafeAreaViewBase, ActivityIndicator } from 'react-native';
+import { Text, SafeAreaView, StyleSheet, SafeAreaViewBase, ActivityIndicator, LogBox } from 'react-native';
+import NetInfo from '@react-native-community/netinfo';
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -18,15 +19,26 @@ import AggiungiTwok from './components/aggiungiTwok';
 import SeguitiStack from './navigators/seguitiStack';
 import CommunicationController from './model/CC';
 
+LogBox.ignoreLogs([
+  'Non-serializable values were found in the navigation state',
+]);
+
 const Tab = createBottomTabNavigator();
 
 export default function App() {
 const [registered, setRegistered] = useState(false)
 const [sid, setSid] = useState(null)
 let [seguiti, setSeguiti] = useState(null)
+const [connected, setConnected] = useState(false)
 
-  useEffect(() => {handleSid().then(result => 'fatto?')}, []);
+  useEffect(() => {handleSid().then(result => 'fatto?'); const unsubscribe = NetInfo.addEventListener(state =>{
+  console.log('Connection type', state.type);
+  console.log('Is connected?', state.isConnected);
+  setConnected(state.isConnected);
+})}, []);
 const SidContext = createContext()
+
+
 
   async function handleSid(){
     await StorageManager.checkFirstRun().catch(e => console.log('errore in checkFirstRun App: ', e));
@@ -80,10 +92,12 @@ const SidContext = createContext()
             // You can return any component that you like here!
             return <Ionicons name={iconName} size={size} color={color} />;
           },
-          tabBarActiveTintColor: 'tomato',
-          tabBarInactiveTintColor: 'gray',
+          tabBarActiveTintColor: '#F4DF4EFF',
+          tabBarInactiveTintColor: '#F4DF4EFF',
           headerShown: false,
-          tabBarStyle: 60
+          tabBarStyle: 60,
+          tabBarActiveBackgroundColor: 'gray',
+          tabBarInactiveBackgroundColor: 'gray'
         })}
       >
         <Tab.Screen name="Home" component={BachecaStack}/>

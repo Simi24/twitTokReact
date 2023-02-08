@@ -17,9 +17,11 @@ export default class CommunicationController {
             return deserializedObject;
         } else {
             let error = new Error("Error message from the server. HTTP status: " + status);
+            console.error(error)
             throw error;
         }
     }
+
 
     static async register(){
         const endpoint = 'register';

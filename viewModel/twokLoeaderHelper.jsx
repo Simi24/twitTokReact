@@ -6,8 +6,8 @@ import SeguitiContext from '../context';
 
 const context = SeguitiContext;
 
-//TODO: mettere direttamente l'immagine placeholder agli utenti con immagine null
-//così posso togliere gli if inutili quando faccio il render dei componenti
+let tidSequence = -1;
+
     
 let SM = new StorageManager();
 
@@ -53,36 +53,83 @@ export default class TwokLoaderHelper{
 
     
     async createList(sid) {
-        console.log('Il sid esiste: ', sid)
-        let listaTwok = []
-        for (let i = 0; i < 9; i++) {
-            //console.log('faccio la richiesta numero: ' + i)
-            const twok = await CommunicationController.getTwok(sid).catch(e => console.log('errore in create list: ', e))
-            console.log(twok)
+        if(tidSequence == -1){
+           try {
+            let listaTwok = []
+            for (let i = 0; i < 9; i++) {
+                //console.log('faccio la richiesta numero: ' + i)
+                const twok = await CommunicationController.getTwok(sid).catch(e => console.log('errore in create list: ', e))
+                //console.log(twok)
                 //let twok = new Twok(result.uid, result.name, result.pversion, result.tid, result.text)
-            this.handleStoreUserPicture2(sid, twok.uid, twok.pversion, twok.name)
+                this.handleStoreUserPicture2(sid, twok.uid, twok.pversion, twok.name)
 
-            listaTwok.push(twok) 
-            //console.log('iterazione: ' + i + lista)
+                listaTwok.push(twok) 
+                //console.log('iterazione: ' + i + lista)
+            }
+
+                //console.log(listaTwok)
+
+                return listaTwok
+            } catch (error) {
+                throw error
+            } 
+        } else {
+            try {
+                let listaTwok = []
+                for (let i = 0; i < 9; i++) {
+                    //console.log('faccio la richiesta numero: ' + i)
+                    const twok = await CommunicationController.getTwok(sid, null ,tidSequence).catch(e => console.log('errore in create list: ', e))
+                    tidSequence++;
+                    //console.log(twok)
+                    //let twok = new Twok(result.uid, result.name, result.pversion, result.tid, result.text)
+                    this.handleStoreUserPicture2(sid, twok.uid, twok.pversion, twok.name)
+    
+                    listaTwok.push(twok) 
+                    //console.log('iterazione: ' + i + lista)
+                }
+    
+                    //console.log(listaTwok)
+    
+                    return listaTwok
+                } catch (error) {
+                    throw error
+                } 
         }
-
-        //console.log(listaTwok)
-
-        return listaTwok
+        
+        
     }
 
 
     async addTwok(sid, lista){
         //console.log(lista.length)
-        for(let i = 0; i < 3; i++){
-            const twok = await CommunicationController.getTwok(sid)
+        if(tidSequence == -1){
+           for(let i = 0; i < 3; i++){
+            try {
+                const twok = await CommunicationController.getTwok(sid).catch(error => console.log('problema di rete nel caricamento twok ', error))
 
-            this.handleStoreUserPicture2(sid, twok.uid, twok.pversion, twok.name)
-            lista.push(twok);
-
+                this.handleStoreUserPicture2(sid, twok.uid, twok.pversion, twok.name)
+                lista.push(twok);
+            } catch (error) {
+                throw error;
+            }
+            
+            }
+            return lista 
+        } else {
+            for(let i = 0; i < 3; i++){
+                try {
+                    const twok = await CommunicationController.getTwok(sid, null ,tidSequence).catch(error => console.log('problema di rete nel caricamento twok ', error))
+                    tidSequence++;
+                    this.handleStoreUserPicture2(sid, twok.uid, twok.pversion, twok.name)
+                    lista.push(twok);
+                } catch (error) {
+                    throw error;
+                }
+                
+                }
+    
+                return lista 
         }
-
-        return lista
     }
     
 
